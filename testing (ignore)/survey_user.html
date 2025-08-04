@@ -1,0 +1,339 @@
+<!-- survey.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Task Completion Feedback</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    /* Basic reset & layout */
+    * { box-sizing:border-box; }
+    body { margin:0; font-family: Arial, sans-serif; background:#f4f6f9; }
+    .topbar { background:#1f4e79; color:#fff; padding:10px 20px; display:flex; align-items:center; justify-content:space-between; }
+    .sidebar { width:220px; background:#fff; border-right:1px solid #ddd; padding:20px; position:fixed; top:50px; bottom:0; overflow:auto; }
+    .main { margin-left:240px; padding:20px; }
+    .card { background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.05); margin-bottom:16px; }
+    .question { margin-bottom:24px; }
+    .scale { display:flex; gap:8px; margin-top:6px; }
+    .scale button { flex:1; padding:10px; border:1px solid #ccc; border-radius:6px; background:#f9f9f9; cursor:pointer; position:relative; }
+    .scale button.selected { border-color:#1f4e79; background:#e4efff; }
+    .scale button span { display:block; font-size:12px; margin-top:4px; }
+    .comment { margin-top:8px; }
+    .required { color:#d00; }
+    .sticky-footer { position:fixed; bottom:0; left:240px; right:0; background:#fff; padding:12px 20px; border-top:1px solid #ddd; display:flex; justify-content:space-between; align-items:center; }
+    .btn { padding:10px 16px; border:none; border-radius:6px; cursor:pointer; }
+    .btn-primary { background:#1f4e79; color:#fff; }
+    .btn-secondary { background:#f0f0f0; }
+    .progress { height:6px; background:#e0e0e0; border-radius:3px; overflow:hidden; margin-top:4px; }
+    .progress-inner { height:100%; background:#1f4e79; width:0%; transition:width .3s; }
+    .small { font-size:12px; color:#555; }
+    .disabled { opacity:.6; cursor:not-allowed; }
+    .sidebar a { display:block; margin-bottom:12px; color:#333; text-decoration:none; font-weight:600; }
+    .sidebar .section-title { font-size:12px; text-transform:uppercase; margin-top:12px; margin-bottom:6px; color:#888; }
+  </style>
+</head>
+<body>
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="left">
+      <strong>MyCompany</strong> › Task Completion Feedback
+    </div>
+    <div class="right">
+      <span class="small">Client: <strong>Acme Corp</strong></span>
+      &nbsp;|&nbsp;
+      <span class="small">Cycle: <strong>Nov 2025</strong></span>
+      &nbsp;|&nbsp;
+      <img src="https://via.placeholder.com/32" style="border-radius:50%;" alt="User">
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="section-title">Navigation</div>
+    <a href="#">Dashboard</a>
+    <a href="#">My Surveys</a>
+    <a href="#">Active Task</a>
+    <a href="#">Completed Surveys</a>
+    <div class="section-title">Support</div>
+    <a href="#">Rectifications</a>
+    <a href="#">Help</a>
+    <div style="margin-top:40px;">
+      <a href="#" style="color:#d00;">Logout</a>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="main">
+    <div class="card">
+      <h2>Task Completion Feedback</h2>
+      <div class="small">Please rate the recent task your team received. Your responses are confidential and help us improve. Required fields are marked <span class="required">*</span>.</div>
+      <div style="margin-top:8px;">
+        <div>Progress: <strong id="answered-count">0</strong> of 7 answered</div>
+        <div class="progress"><div class="progress-inner" id="progress-bar"></div></div>
+      </div>
+    </div>
+
+    <form id="survey-form">
+      <!-- Example questions -->
+      <div class="card question" data-qid="1">
+        <div><strong>1. How would you rate the timeliness of the task completion?</strong> <span class="required">*</span></div>
+        <div class="scale" role="radiogroup">
+          <!-- rating buttons -->
+          <button type="button" data-value="1" aria-label="Very Poor"><div>1</div><span>Very Poor</span></button>
+          <button type="button" data-value="2" aria-label="Poor"><div>2</div><span>Poor</span></button>
+          <button type="button" data-value="3" aria-label="Average"><div>3</div><span>Average</span></button>
+          <button type="button" data-value="4" aria-label="Good"><div>4</div><span>Good</span></button>
+          <button type="button" data-value="5" aria-label="Exceptional"><div>5</div><span>Exceptional</span></button>
+        </div>
+        <div class="comment">
+          <label><input type="checkbox" class="toggle-comment"> Add comment</label>
+          <div class="comment-box" style="display:none; margin-top:6px;">
+            <textarea name="comment_1" rows="2" style="width:100%;" placeholder="Optional details..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="card question" data-qid="2">
+        <div><strong>2. How satisfied are you with the quality of the deliverable?</strong> <span class="required">*</span></div>
+        <div class="scale">
+          <button type="button" data-value="1"><div>1</div><span>Very Poor</span></button>
+          <button type="button" data-value="2"><div>2</div><span>Poor</span></button>
+          <button type="button" data-value="3"><div>3</div><span>Average</span></button>
+          <button type="button" data-value="4"><div>4</div><span>Good</span></button>
+          <button type="button" data-value="5"><div>5</div><span>Exceptional</span></button>
+        </div>
+        <div class="comment">
+          <label><input type="checkbox" class="toggle-comment"> Add comment</label>
+          <div class="comment-box" style="display:none; margin-top:6px;">
+            <textarea name="comment_2" rows="2" style="width:100%;" placeholder="Optional details..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="card question" data-qid="3">
+        <div><strong>3. How clear was the communication from the assigned owner (PIC)?</strong> <span class="required">*</span></div>
+        <div class="scale">
+          <button type="button" data-value="1"><div>1</div><span>Very Poor</span></button>
+          <button type="button" data-value="2"><div>2</div><span>Poor</span></button>
+          <button type="button" data-value="3"><div>3</div><span>Average</span></button>
+          <button type="button" data-value="4"><div>4</div><span>Good</span></button>
+          <button type="button" data-value="5"><div>5</div><span>Exceptional</span></button>
+        </div>
+        <div class="comment">
+          <label><input type="checkbox" class="toggle-comment"> Add comment</label>
+          <div class="comment-box" style="display:none; margin-top:6px;">
+            <textarea name="comment_3" rows="2" style="width:100%;" placeholder="Optional details..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add more questions similarly up to 7 -->
+      <div class="card question" data-qid="4">
+        <div><strong>4. How well did the solution meet your expectations?</strong> <span class="required">*</span></div>
+        <div class="scale">
+          <button type="button" data-value="1"><div>1</div><span>Very Poor</span></button>
+          <button type="button" data-value="2"><div>2</div><span>Poor</span></button>
+          <button type="button" data-value="3"><div>3</div><span>Average</span></button>
+          <button type="button" data-value="4"><div>4</div><span>Good</span></button>
+          <button type="button" data-value="5"><div>5</div><span>Exceptional</span></button>
+        </div>
+      </div>
+
+      <div class="card question" data-qid="5">
+        <div><strong>5. How likely are you to recommend our service to others?</strong> <span class="required">*</span></div>
+        <div class="scale">
+          <button type="button" data-value="1"><div>1</div><span>Very Poor</span></button>
+          <button type="button" data-value="2"><div>2</div><span>Poor</span></button>
+          <button type="button" data-value="3"><div>3</div><span>Average</span></button>
+          <button type="button" data-value="4"><div>4</div><span>Good</span></button>
+          <button type="button" data-value="5"><div>5</div><span>Exceptional</span></button>
+        </div>
+      </div>
+
+      <div class="card question" data-qid="6">
+        <div><strong>6. Were there any major issues that required rectification?</strong></div>
+        <div>
+          <label><input type="radio" name="issue" value="yes"> Yes</label>
+          <label style="margin-left:16px;"><input type="radio" name="issue" value="no" checked> No</label>
+        </div>
+        <div class="comment" style="margin-top:6px;">
+          <div>If yes, description:</div>
+          <textarea name="issue_desc" rows="2" style="width:100%;" placeholder="Brief description..."></textarea>
+        </div>
+      </div>
+
+      <div class="card question" data-qid="7">
+        <div><strong>7. Overall satisfaction with the engagement:</strong> <span class="required">*</span></div>
+        <div class="scale">
+          <button type="button" data-value="1"><div>1</div><span>Very Poor</span></button>
+          <button type="button" data-value="2"><div>2</div><span>Poor</span></button>
+          <button type="button" data-value="3"><div>3</div><span>Average</span></button>
+          <button type="button" data-value="4"><div>4</div><span>Good</span></button>
+          <button type="button" data-value="5"><div>5</div><span>Exceptional</span></button>
+        </div>
+        <div class="comment">
+          <label><input type="checkbox" class="toggle-comment"> Add comment</label>
+          <div class="comment-box" style="display:none; margin-top:6px;">
+            <textarea name="comment_7" rows="2" style="width:100%;" placeholder="Optional details..."></textarea>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Sticky footer for actions -->
+  <div class="sticky-footer">
+    <div class="small" id="autosave-status">Last saved: never</div>
+    <div>
+      <button class="btn btn-secondary" id="save-draft">Save Draft</button>
+      <button class="btn btn-primary" id="submit-survey">Submit Survey</button>
+    </div>
+  </div>
+
+  <script>
+    // Front-end logic: collect answers, autosave, submit
+    const formId = 1; // example
+    const clientId = 123; // from context/session
+    let answers = {}; // { question_id: { value, comment? } }
+
+    const requiredQids = ['1','2','3','4','5','7'];
+
+    function updateProgress() {
+      const answeredCount = Object.keys(answers).filter(qid => answers[qid].value !== undefined).length;
+      document.getElementById('answered-count').textContent = answeredCount + ' of 7';
+      const pct = Math.min(100, Math.round((answeredCount/7)*100));
+      document.getElementById('progress-bar').style.width = pct + '%';
+    }
+
+    function gatherPayload(submit=false) {
+      const answerList = [];
+      document.querySelectorAll('.question').forEach(q => {
+        const qid = q.dataset.qid;
+        // rating
+        const selected = q.querySelector('.scale button.selected');
+        if (selected) {
+          answerList.push({
+            question_id: parseInt(qid),
+            value: selected.dataset.value
+          });
+        }
+        // optional comments
+        const textarea = q.querySelector('textarea');
+        if (textarea && textarea.value.trim() !== '') {
+          answerList.push({
+            question_id: parseInt(qid + 'c'), // comment pseudo-id or handle separately
+            value: textarea.value.trim()
+          });
+        }
+      });
+      // simplistic; in real you'd namespace question vs comment
+      return {
+        form_id: formId,
+        client_id: clientId,
+        answers: answerList,
+        submit: submit
+      };
+    }
+
+    function showMessage(msg) {
+      document.getElementById('autosave-status').textContent = msg;
+    }
+
+    // Rating handlers
+    document.querySelectorAll('.scale').forEach(scale => {
+      scale.addEventListener('click', e => {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+        const parent = btn.closest('.scale');
+        [...parent.querySelectorAll('button')].forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+
+        const questionEl = btn.closest('.question');
+        answers[questionEl.dataset.qid] = { value: btn.dataset.value };
+        updateProgress();
+      });
+    });
+
+    // Comment toggles
+    document.querySelectorAll('.toggle-comment').forEach(cb => {
+      cb.addEventListener('change', e => {
+        const wrapper = e.target.closest('.question');
+        const box = wrapper.querySelector('.comment-box');
+        box.style.display = e.target.checked ? 'block' : 'none';
+      });
+    });
+
+    // Draft autosave (manual button)
+    document.getElementById('save-draft').addEventListener('click', async () => {
+      showMessage('Saving draft...');
+      const payload = gatherPayload(false);
+      try {
+        const res = await fetch('save_response.php', {
+          method: 'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+        if (json.success) {
+          showMessage('Draft saved just now');
+        } else {
+          showMessage('Save failed');
+        }
+      } catch (err) {
+        showMessage('Network error');
+      }
+    });
+
+    // Final submit
+    document.getElementById('submit-survey').addEventListener('click', async () => {
+      // basic required validation
+      for (let qid of requiredQids) {
+        if (!answers[qid] || !answers[qid].value) {
+          alert('Please answer all required questions.');
+          return;
+        }
+      }
+      if (!confirm('Submit survey?')) return;
+      showMessage('Submitting...');
+      const payload = gatherPayload(true);
+      try {
+        const res = await fetch('save_response.php', {
+          method: 'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+        if (json.success && json.submitted) {
+          showMessage('Submitted successfully');
+          document.getElementById('submit-survey').disabled = true;
+          document.getElementById('save-draft').disabled = true;
+          alert('Thank you for your feedback.');
+        } else {
+          showMessage('Submission failed');
+        }
+      } catch (err) {
+        showMessage('Network error');
+      }
+    });
+
+    // Optional: autosave every 30s if something changed
+    let lastAutoSave = 0;
+    setInterval(() => {
+      const now = Date.now();
+      if (now - lastAutoSave < 30000) return;
+      // only autosave if some answers exist
+      if (Object.keys(answers).length === 0) return;
+      lastAutoSave = now;
+      const payload = gatherPayload(false);
+      fetch('save_response.php', {
+        method: 'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+      }).then(r => r.json()).then(j => {
+        if (j.success) showMessage('Auto-saved at ' + new Date().toLocaleTimeString());
+      });
+    }, 30000);
+  </script>
+</body>
+</html>

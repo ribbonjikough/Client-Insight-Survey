@@ -1,0 +1,114 @@
+USERS
+┌────────────────────────┐
+│ user_id (PK)           │
+│ name                   │
+│ email                  │
+│ role                   │
+│ ...                    │
+└──────┬─────────────────┘
+       │ 1..* (creates / owns)
+       ▼
+FORMS
+┌────────────────────────┐
+│ form_id (PK)           │
+│ title                  │
+│ description            │
+│ created_by (FK→USERS)  │
+│ status                 │
+│ ...                    │
+└──────┬─────────────────┘
+       │ 1..* (has)
+       ▼
+QUESTIONS
+┌────────────────────────┐
+│ question_id (PK)       │
+│ form_id (FK→FORMS)     │
+│ question_text          │
+│ type                   │
+│ required (bool)        │
+│ metadata (JSON)        │
+│ ...                    │
+└──────┬─────────────────┘
+       │ 1..* (answered in)
+       ▼
+ANSWERS
+┌──────────────────────────────┐
+│ answer_id (PK)               │
+│ response_id (FK→RESPONSES)   │
+│ question_id (FK→QUESTIONS)   │
+│ value                        │
+│ score                        │
+│ created_at                   │
+└─────────┬────────────────────┘
+          │ many per one
+          ▼
+RESPONSES
+┌───────────────────────────────────────────┐
+│ response_id (PK)                          │
+│ form_id (FK→FORMS)                        │
+│ client_id (FK→CLIENTS)                    │
+│ session_id (FK→RESPONSE_SESSIONS)         │
+│ submitted_by (nullable FK→USERS)          │
+│ submitted_at                              │
+│ immutable_hash                            │
+│ ...                                       │
+└────────────┬──────────────────────────────┘
+             │ many per one
+             ▼
+RESPONSE_SESSIONS
+┌────────────────────────┐
+│ session_id (PK)        │
+│ client_id (FK→CLIENTS) │
+│ form_id (FK→FORMS)     │
+│ started_at             │
+│ status (in_progress / submitted / abandoned)
+└────────────────────────┘
+
+CLIENTS
+┌────────────────────────┐
+│ client_id (PK)         │
+│ name                   │
+│ segment (enum)         │  ← commercial / government / top3
+│ contact_info           │
+│ ...                    │
+└──────┬─────────────────┘
+       │ 1..* (has)
+       ▼
+CLIENT_SURVEYS
+┌────────────────────────────────────────────────────┐
+│ client_survey_id (PK)                             │
+│ client_id (FK→CLIENTS)                            │
+│ survey_id (FK→FORMS)          ← (survey used)     │
+│ assigned_to (FK→USERS)        ← PIC / owner        │
+│ cycle_label (e.g., "2025-Nov")                    │
+│ scheduled_at                                      │
+│ sent_at                                           │
+│ status (draft/sent/completed)                     │
+│ is_active (bool)  ← only one true per client       │
+└────────────┬───────────────────────────────────────┘
+             │ 1..* (can generate issues on low scores)
+             ▼
+RECTIFICATIONS
+┌────────────────────────────────────────────┐
+│ rectification_id (PK)                     │
+│ survey_id (FK→FORMS)                      │
+│ question_id (FK→QUESTIONS) (optional)      │
+│ triggered_by (FK→USERS or system)          │
+│ assigned_to (FK→USERS)                    │
+│ description                               │
+│ status (open/in_progress/resolved)        │
+│ created_at                                │
+│ closed_at                                 │
+└────────────────────────────────────────────┘
+
+architecture sketch
+
+[SFDC] ------------\
+                    \
+                     > [Integration Layer / PHP Backend] --> [MySQL core platform]
+                    /             ↑                          (clients, surveys, responses,
+[Ticketing System]-/              |                           rectifications, etc.)
+                                   \                       
+                                    > [Outgoing API calls]
+                                      (create rectification ticket,
+                                       update Salesforce with survey outcome)
