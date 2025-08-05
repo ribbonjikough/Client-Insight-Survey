@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Preview Form</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <div id="sidebar-container"></div>
+  <div id="topbar-container"></div>
+
+  <div class="content">
+    <h2>Preview: <span id="formTitle"></span></h2>
+    <p id="formDesc"></p>
+    <form>
+      <div id="formQuestions"></div>
+    </form>
+  </div>
+
+  <script>
+
+    const title = localStorage.getItem("formTitle");
+    const desc = localStorage.getItem("formDesc");
+    const questions = JSON.parse(localStorage.getItem("questions") || "[]");
+
+    document.getElementById("formTitle").innerText = title;
+    document.getElementById("formDesc").innerText = desc;
+
+    const formQuestions = document.getElementById("formQuestions");
+
+    questions.forEach((q, index) => {
+      let html = `<label>${q.text}</label><br>`;
+      switch (q.type) {
+        case "text":
+          html += `<input type="text"><br><br>`; //Please rate the recent task your team received. Your responses are confidential and help us improve. Required fields are marked *.
+          break;
+        case "textarea":
+          html += `<textarea></textarea><br><br>`;
+          break;
+        case "radio":
+          q.options.forEach(opt => {
+            html += `<input type="radio" name="q${index}"> ${opt} <br>`;
+          });
+          html += `<br>`;
+          break;
+        case "checkbox":
+          q.options.forEach(opt => {
+            html += `<input type="checkbox" name="q${index}"> ${opt} <br>`;
+          });
+          html += `<br>`;
+          break;
+        case "rating":
+          for (let i = 1; i <= 5; i++) {
+            html += `<input type="radio" name="q${index}"> ${i} `;
+          }
+          html += `<br><br>`;
+          break;
+      }
+      formQuestions.innerHTML += html;
+    });
+  </script>
+</body>
+</html>

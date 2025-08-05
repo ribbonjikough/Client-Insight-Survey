@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <!-- Include Layouts -->
+  <div id="sidebar-container"></div>
+  <div id="topbar-container"></div>
+
+  <div class="content">
+    <h1>Dashboard</h1>
+    <p>Welcome to the Survey Builder Admin Panel.</p>
+  </div>
+
+  <script>
+    fetch('layout/sidebar.html').then(res => res.text()).then(html => document.getElementById('sidebar-container').innerHTML = html);
+    fetch('layout/topbar.html').then(res => res.text()).then(html => document.getElementById('topbar-container').innerHTML = html);
+  </script>
+</body>
+</html>

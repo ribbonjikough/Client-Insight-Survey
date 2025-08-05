@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Create Form</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <div id="sidebar-container"></div>
+  <div id="topbar-container"></div>
+
+  <div class="content">
+    <h2>Create New Survey</h2>
+    <form id="formMeta">
+      <label>Form Title:</label>
+      <input type="text" id="formTitle" required><br><br>
+
+      <label>Description:</label><br>
+      <textarea id="formDesc"></textarea><br><br>
+
+      <button type="submit">Save & Continue</button>
+    </form>
+  </div>
+
+  <script>
+    fetch('layout/sidebar.html').then(res => res.text()).then(html => document.getElementById('sidebar-container').innerHTML = html);
+    fetch('layout/topbar.html').then(res => res.text()).then(html => document.getElementById('topbar-container').innerHTML = html);
+
+    document.getElementById("formMeta").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const title = document.getElementById("formTitle").value;
+      const desc = document.getElementById("formDesc").value;
+      localStorage.setItem("formTitle", title);
+      localStorage.setItem("formDesc", desc);
+      window.location.href = "add-questions.html";
+    });
+  </script>
+</body>
+</html>

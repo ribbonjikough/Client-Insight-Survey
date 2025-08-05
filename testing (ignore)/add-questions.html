@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Add Questions</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <div id="sidebar-container"></div>
+  <div id="topbar-container"></div>
+
+  <div class="content">
+    <h2>Add Questions to Form: <span id="formTitleSpan"></span></h2>
+    <form id="questionForm">
+      <label>Question:</label>
+      <input type="text" id="questionText" required><br><br>
+
+      <label>Type:</label>
+      <select id="questionType">
+        <option value="text">Short Answer</option>
+        <option value="textarea">Long Answer</option>
+        <option value="radio">Multiple Choice</option>
+        <option value="checkbox">Checkboxes</option>
+        <option value="rating">Rating (1-5)</option>
+      </select><br><br>
+
+      <div id="optionContainer" style="display:none;">
+        <label>Options (comma-separated):</label>
+        <input type="text" id="questionOptions"><br><br>
+      </div>
+
+      <button type="submit">Add Question</button>
+    </form>
+
+    <h3>Added Questions</h3>
+    <ul id="questionList"></ul>
+
+    <button onclick="window.location.href='preview-form.html'">Preview Form</button>
+  </div>
+
+  <script>
+    fetch('layout/sidebar.html').then(res => res.text()).then(html => document.getElementById('sidebar-container').innerHTML = html);
+    fetch('layout/topbar.html').then(res => res.text()).then(html => document.getElementById('topbar-container').innerHTML = html);
+
+    document.getElementById("formTitleSpan").innerText = localStorage.getItem("formTitle");
+
+    const questionType = document.getElementById("questionType");
+    const optionContainer = document.getElementById("optionContainer");
+
+    questionType.addEventListener("change", function () {
+      optionContainer.style.display = (["radio", "checkbox"].includes(this.value)) ? "block" : "none";
+    });
+
+    const questionList = document.getElementById("questionList");
+    let questions = JSON.parse(localStorage.getItem("questions") || "[]");
+
+    function renderQuestions() {
+      questionList.innerHTML = "";
+      questions.forEach((q, i) => {
+        questionList.innerHTML += `<li>${q.text} [${q.type}]</li>`;
+      });
+    }
+
+    renderQuestions();
+
+    document.getElementById("questionForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const text = document.getElementById("questionText").value;
+      const type = document.getElementById("questionType").value;
+      const options = document.getElementById("questionOptions").value.split(",");
+
+      questions.push({
+        text,
+        type,
+        options: ["radio", "checkbox"].includes(type) ? options : []
+      });
+
+      localStorage.setItem("questions", JSON.stringify(questions));
+      renderQuestions();
+      this.reset();
+      optionContainer.style.display = "none";
+    });
+  </script>
+</body>
+</html>
